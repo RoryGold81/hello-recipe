@@ -23,25 +23,74 @@ def process_recipe():
         oembed_endpoint = f"https://api.instagram.com/oembed/?url={recipe_url}" # Using the simple endpoint
 
         try:
+            print(f"Attempting to fetch oEmbed data from: {oembed_endpoint}")
             response = requests.get(oembed_endpoint)
+            print(f"Response status code: {response.status_code}")
+            print(f"Response headers: {response.headers}")
+            print(f"Response text: {response.text[:500]}...")  # Print first 500 chars of response
 
+            # Check if the response is JSON by looking at the Content-Type header
+            content_type = response.headers.get('Content-Type', '')
+            is_json = 'application/json' in content_type.lower()
+            
             if response.status_code == 200:
-                try:
-                    data = response.json()
-                    caption = data.get('title', 'Caption not found in oEmbed response.')
-                    # Display results including the raw JSON for debugging
+                if is_json:
+                    try:
+                        data = response.json()
+                        caption = data.get('title', 'Caption not found in oEmbed response.')
+                        # Display results including the raw JSON for debugging
+                        return f"""
+                            <h2>oEmbed Result:</h2>
+                            <p><b>Attempted URL:</b> {recipe_url}</p>
+                            <p><b>Extracted Caption (from title):</b> {caption}</p>
+                            <hr>
+                            <p><i>Note: Full caption might be truncated. Check raw JSON below.</i></p>
+                            <a href="/">Try another URL</a>
+                            <hr>
+                            <pre>Raw JSON Response:\n{data}</pre>
+                            """
+                    except requests.exceptions.JSONDecodeError:
+                        return f"""
+                            <h2>Error: Failed to decode JSON response</h2>
+                            <p>The Instagram oEmbed endpoint returned a response with status code 200, but the content could not be parsed as JSON.</p>
+                            <p><b>Attempted URL:</b> {recipe_url}</p>
+                            <p><b>Endpoint:</b> {oembed_endpoint}</p>
+                            <p>This could be because:</p>
+                            <ul>
+                                <li>Instagram's oEmbed API might have changed and now requires authentication</li>
+                                <li>The URL format might be incorrect</li>
+                                <li>Instagram might be returning HTML instead of JSON</li>
+                            </ul>
+                            <hr>
+                            <p><a href="/">Try another URL</a></p>
+                            <hr>
+                            <h3>Response Headers:</h3>
+                            <pre>{response.headers}</pre>
+                            <h3>Response Content (first 1000 characters):</h3>
+                            <pre>{response.text[:1000]}...</pre>
+                            """
+                else:
+                    # Response is not JSON (likely HTML)
                     return f"""
-                        <h2>oEmbed Result:</h2>
+                        <h2>Error: Instagram returned HTML instead of JSON</h2>
+                        <p>The Instagram oEmbed endpoint returned HTML content instead of JSON data.</p>
                         <p><b>Attempted URL:</b> {recipe_url}</p>
-                        <p><b>Extracted Caption (from title):</b> {caption}</p>
+                        <p><b>Endpoint:</b> {oembed_endpoint}</p>
+                        <p><b>Content-Type:</b> {content_type}</p>
+                        <p>This likely means that:</p>
+                        <ul>
+                            <li>Instagram's oEmbed API now requires authentication</li>
+                            <li>The simple endpoint is no longer supported</li>
+                            <li>Instagram is redirecting to their website instead of providing oEmbed data</li>
+                        </ul>
                         <hr>
-                        <p><i>Note: Full caption might be truncated. Check raw JSON below.</i></p>
-                        <a href="/">Try another URL</a>
+                        <p><a href="/">Try another URL</a></p>
                         <hr>
-                        <pre>Raw JSON Response:\n{data}</pre>
+                        <h3>Response Headers:</h3>
+                        <pre>{response.headers}</pre>
+                        <h3>Response Content (first 1000 characters):</h3>
+                        <pre>{response.text[:1000]}...</pre>
                         """
-                except requests.exceptions.JSONDecodeError:
-                    return f"Error: Failed to decode JSON response from {oembed_endpoint}. Status: {response.status_code}. Response text: <pre>{response.text}</pre>"
             elif response.status_code == 404:
                  return f"Error: Could not find oEmbed data for the URL (404 Not Found). Is the post public and URL correct? Endpoint: {oembed_endpoint}"
             elif response.status_code == 401 or response.status_code == 400:

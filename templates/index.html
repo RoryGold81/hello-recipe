@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello Recipe - Instagram Caption Fetcher</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Instagram Caption Fetcher</h1>
+    <p>Enter an Instagram post URL to fetch its caption using oEmbed.</p>
+    
+    <form action="/process_recipe" method="post">
+        <div>
+            <label for="recipe_url">Instagram URL:</label>
+            <input type="text" id="recipe_url" name="recipe_url" placeholder="https://www.instagram.com/p/..." required>
+        </div>
+        <button type="submit">Fetch Caption</button>
+    </form>
+    
+    <div>
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Find an Instagram post with a recipe or content you want to extract.</li>
+            <li>Copy the URL of that post.</li>
+            <li>Paste the URL in the field above and click "Fetch Caption".</li>
+            <li>The app will attempt to extract the caption using Instagram's oEmbed API.</li>
+        </ol>
+        <p><small>Note: This only works with public Instagram posts.</small></p>
+    </div>
+</body>
+</html>
